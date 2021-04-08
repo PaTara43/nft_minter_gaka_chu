@@ -1,4 +1,4 @@
 config/config_filled.yaml
 config/config_0.yaml
-data/canary*
-data/metadata*
+data/*
+!data/GakaToken.json
