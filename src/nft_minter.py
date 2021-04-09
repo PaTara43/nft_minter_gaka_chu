@@ -47,11 +47,20 @@ def rename(filepath, name, file_format, net):
     res = res[0:res.rfind('/')+1] + name + '_' + file_format + '_' + net + res[res.rfind('/')+1:]
     return res
 
-def callback(data, packagePath):
+def callback_get_name(data):
+    global name
+    rospy.loginfo(rospy.get_caller_id() + " I heard %s", data.data)
+    initial_pic_filepath = data.data
+    name = data.data[data.data.rfind('/')+1:data.data.rfind('.')]
+    rospy.loginfo('Set name: ' + name)
 
+
+
+def callback(data, packagePath):
     #read topic
-    rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
-    name = data.data
+    rospy.loginfo(rospy.get_caller_id() + " I heard %s", data.data)
+    if not data.data == 'stop':
+        return False
 
     #find files in their known locations
     rospy.loginfo('Finding media file paths')
@@ -59,7 +68,7 @@ def callback(data, packagePath):
     picture_filepath = config['filepaths']['picture']
     rosbag_filepath = config['filepaths']['rosbag']
 
-    #rename files
+    # rename files
     rospy.loginfo('Creating new names')
     if testnet:
         video_filepath_renamed = rename(video_filepath, name, 'video', 'testnet')
@@ -78,17 +87,23 @@ def callback(data, packagePath):
     except FileNotFoundError as e:
         rospy.logwarn('Perhaps, files have already been renamed. Trying to find them...')
         if (not os.path.exists(video_filepath_renamed)) or (not os.path.exists(picture_filepath_renamed)) or (not os.path.exists(rosbag_filepath_renamed)):
-            rospy.logerr('No media files found. Breaking')
+            rospy.logerr('No media files found. Try to rename all of them as in configuratoin file. Breaking')
             return False
         else:
             rospy.loginfo('Files have already been renamed. Going on')
             pass
 
     #pin them to pinata:
+    rospy.loginfo(video_filepath_renamed)
+    rospy.loginfo(picture_filepath_renamed)
+    rospy.loginfo(rosbag_filepath_renamed)
     rospy.loginfo('Upolading media to pinata')
     hash_video = _pin_to_pinata(video_filepath_renamed)
+    rospy.loginfo('Video: ' + hash_video)
     hash_picture = _pin_to_pinata(picture_filepath_renamed)
+    rospy.loginfo('Picture: ' + hash_picture)
     hash_rosbag = _pin_to_pinata(rosbag_filepath_renamed)
+    rospy.loginfo('Rosbag: ' + hash_rosbag)
 
     #json metadata
     rospy.loginfo('Creating metadata file')
@@ -147,11 +162,13 @@ def callback(data, packagePath):
     rospy.loginfo("txn_receipt: " + str(txn_receipt))
 
 def listener(packagePath):
-    rospy.loginfo('Initiating node')
+    print('Initiating node')
     rospy.init_node('NFT_minter', anonymous=False)
     callback_lambda = lambda x: callback(x,packagePath)
-    rospy.Subscriber("NFT_data", String, callback_lambda)
-    rospy.loginfo('Listening to NFT_minter')
+    rospy.Subscriber("film", String, callback_lambda)
+    rospy.loginfo('Listening to /film')
+    rospy.Subscriber("run", String, callback_get_name)
+    rospy.loginfo('Listening to /run')
     rospy.spin()
 
 
@@ -162,7 +179,7 @@ if __name__ == '__main__':
     packagePath = rospack.get_path('nft_minter') + "/"
 
     #get config parameters
-    rospy.loginfo('Searching for config')
+    print('Searching for config')
     config = read_configuration(packagePath)
     testnet = config['general']['testnet']
     pinata_api = config['parameters']['pinata_api']
@@ -177,25 +194,25 @@ if __name__ == '__main__':
     else:
         provider = config['parameters']['provider']
         contract_address = config['parameters']['contract_address']
-    rospy.loginfo('Configuration set')
+    print('Configuration set')
 
 
     #connect to node
     w3 = Web3(Web3.WebsocketProvider(provider))
     if testnet:
-        rospy.loginfo('Is connected to testnet: ' + str(w3.isConnected()))
+        print('Is connected to testnet: ' + str(w3.isConnected()))
     else:
-        rospy.loginfo('Is connected to mainnet: ' + str(w3.isConnected()))
+        print('Is connected to mainnet: ' + str(w3.isConnected()))
 
 
     #initiate contract connection
-    rospy.loginfo('Initiating contract connection')
+    print('Initiating contract connection')
     contract_file_path = packagePath + "data/" + contract_filename
     with open(contract_file_path, 'r') as f:
         contract_file = json.loads(f.read())
 
     contract = w3.eth.contract(address=contract_address, abi=contract_file["abi"])
     w3.eth.default_account = minter
-    rospy.loginfo('Connected to contract')
+    print('Connected to contract')
     #ros node
     listener(packagePath)
