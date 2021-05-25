@@ -87,6 +87,7 @@ def callback(data: String, packagepath: str) -> bool:
     :param packagepath: path to node
     :return: Success or not
     """
+    global name
     # read topic
     rospy.loginfo(rospy.get_caller_id() + " I heard %s", data.data)
     if not data.data == "stop":
