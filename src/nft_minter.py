@@ -5,6 +5,7 @@ import logging
 import os
 import rospy
 import rospkg
+import time
 import yaml
 
 from pinatapy import PinataPy
@@ -91,6 +92,9 @@ def callback(data: String, packagepath: str) -> bool:
     rospy.loginfo(rospy.get_caller_id() + " I heard %s", data.data)
     if not data.data == "stop":
         return False
+
+    # wait 10 secs to allow ffmpeg to finish filming
+    time.sleep(10)
 
     # find files in their known locations
     rospy.loginfo("Finding media file paths")
