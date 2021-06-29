@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import logging
+import rospy
 
 
 def canvas_counter(path: str) -> bool:
@@ -14,20 +14,20 @@ def canvas_counter(path: str) -> bool:
         number = int(f.read())
         f.seek(0)
         f.truncate()
-        logging.debug(f"Previous number of canvases: {number}")
+        rospy.loginfo(f"Previous number of canvases: {number}")
     except Exception as e:
-        logging.error("can't open the file!")
-        logging.error(e)
+        rospy.loginfo("can't open the file!")
+        rospy.loginfo(e)
         exit()
     number -= 1
-    logging.debug(f"Current number of canvases: {number}")
+    rospy.loginfo(f"Current number of canvases: {number}")
     if number == 0:
         f.write("3")
         f.close()
-        logging.debug(f"Need to order canvases.")
+        rospy.loginfo(f"Need to order canvases.")
         return True
     else:
         f.write(str(number))
         f.close()
-        logging.debug(f"Can continue drawing.")
+        rospy.loginfo(f"Can continue drawing.")
         return False
