@@ -218,19 +218,6 @@ def callback(data: String, packagepath: str) -> bool:
     txn_receipt = w3.eth.waitForTransactionReceipt(txn_hash)
     rospy.loginfo("txn_receipt: " + str(txn_receipt))
 
-    # sleep before sending transaction to the shop
-    time.sleep(2)
-    rospy.loginfo("Waiting for  service to send transaction to the shop")
-    rospy.wait_for_service('send_eth')
-    rospy.loginfo("Calling the service")
-    try:
-        send_eth = rospy.ServiceProxy('send_eth', send_eth_srv)
-        res = send_eth(config["parameters"]["minter"], config["parameters"]["shop_address"],
-                       0.01, config["parameters"]["minter_seed"])
-        rospy.loginfo(f"Result: {res.success}")
-    except rospy.ServiceException as e:
-        rospy.logerr(f"Service call failed: {e}")
-
 
 def listener(packagepath: str) -> None:
     """

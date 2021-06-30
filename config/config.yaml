@@ -11,7 +11,6 @@ parameters:
   provider: ""
   contract_address: ''
   contract_filename: ''
-  shop_address: ''
 filepaths:
   video: ''
   picture: ''
