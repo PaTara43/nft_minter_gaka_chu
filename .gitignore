@@ -2,3 +2,4 @@ config/config_filled.yaml
 config/config_0.yaml
 data/*
 !data/GakaToken.json
+kuka-auction/node_modules

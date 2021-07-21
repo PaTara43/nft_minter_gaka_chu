@@ -3,7 +3,6 @@ general:
 parameters:
   pinata_api: ""
   pinata_secret_api: ""
-  to_who: ''
   minter: '' # also, a source address to send transaction to shop
   minter_seed: ''
   provider_testnet: ""
@@ -11,6 +10,11 @@ parameters:
   provider: ""
   contract_address: ''
   contract_filename: ''
+auction:
+  duration:
+  start_amount:
+  end_amount:
+  reserve_price:
 filepaths:
   video: ''
   picture: ''

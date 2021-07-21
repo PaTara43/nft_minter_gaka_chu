@@ -1,0 +1,19 @@
+{
+  "name": "kuka-auction",
+  "version": "1.0.0",
+  "description": "Pakcage to sell nfts by Gaka-Chu",
+  "main": "auction.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Pavel Tarasov",
+  "license": "ISC",
+  "dependencies": {
+    "@0x/subproviders": "^6.5.4",
+    "@truffle/hdwallet-provider": "^1.4.1",
+    "dotenv": "^10.0.0",
+    "opensea-js": "^1.1.11",
+    "truffle-hdwallet-provider-privkey": "^0.3.0",
+    "web3": "^1.4.0"
+  }
+}

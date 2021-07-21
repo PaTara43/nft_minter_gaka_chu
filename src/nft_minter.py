@@ -8,9 +8,9 @@ import rospkg
 import time
 import yaml
 
+from Naked.toolshed.shell import muterun_js
 from pinatapy import PinataPy
 from std_msgs.msg import String
-from send_eth.srv import send_eth_srv
 from web3 import Web3
 from web3.gas_strategies.time_based import medium_gas_price_strategy
 
@@ -34,10 +34,6 @@ def read_configuration(dirname: str) -> dict:
             logging.error("Error in configuration file!")
             logging.error(e)
             exit()
-
-
-class Error(Exception):
-    pass
 
 
 def _pin_to_pinata(filename: str) -> str:
@@ -71,6 +67,26 @@ def rename(filepath: str, name: str, file_format: str, net: str) -> str:
             + res[res.rfind("/") + 1:]
     )
     return res
+
+
+def start_auction():
+    """
+    Start nodejs script to initiate English auction for selling the NFT
+    """
+    time.sleep(10)  # to make the token appear on OpenSea
+    infura_key = provider[provider.rfind("/") + 1:]
+    network = provider[provider.find("//") + 2:provider.find(".")]
+    response = muterun_js(f"{packagePath}/kuka-auction/auction.js", f"{infura_key} {minter_seed} {minter} {network} "
+                                                                    f"{contract_address} {duration} "
+                                                                    f"{start_amount} {end_amount} {reserve_price}")
+
+    if response.exitcode == 0:
+        if "Successfully created an English auction" in response.stdout:
+            rospy.loginfo(response.stdout)
+        else:
+            rospy.logerr(f"Failed to start English auction: {response.stdout}")
+    else:
+        rospy.logerr(f"Failed to start English auction: {response.stderr}")
 
 
 def callback_get_name(data: String) -> None:
@@ -194,10 +210,10 @@ def callback(data: String, packagepath: str) -> bool:
 
     # buildup txn
     rospy.loginfo("Building up transaction")
-    gas_estimate = contract.functions.mintWithURI(to_who, hash_pinata).estimateGas()
+    gas_estimate = contract.functions.mintWithURI(minter, hash_pinata).estimateGas()
     rospy.loginfo("gas_estimate " + str(gas_estimate))
 
-    transaction = contract.functions.mintWithURI(to_who, hash_pinata).buildTransaction()
+    transaction = contract.functions.mintWithURI(minter, hash_pinata).buildTransaction()
     rospy.loginfo("Transaction: " + str(transaction))
     transaction.update({"gas": gas_estimate})
     transaction.update({"nonce": w3.eth.get_transaction_count(minter)})
@@ -217,6 +233,9 @@ def callback(data: String, packagepath: str) -> bool:
     txn_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
     txn_receipt = w3.eth.waitForTransactionReceipt(txn_hash)
     rospy.loginfo("txn_receipt: " + str(txn_receipt))
+
+    # Sell item
+    start_auction()
 
 
 def listener(packagepath: str) -> None:
@@ -246,7 +265,6 @@ if __name__ == "__main__":
     testnet = config["general"]["testnet"]
     pinata_api = config["parameters"]["pinata_api"]
     pinata_secret_api = config["parameters"]["pinata_secret_api"]
-    to_who = config["parameters"]["to_who"]
     minter = config["parameters"]["minter"]
     minter_seed = config["parameters"]["minter_seed"]
     contract_filename = config["parameters"]["contract_filename"]
@@ -257,6 +275,11 @@ if __name__ == "__main__":
         provider = config["parameters"]["provider"]
         contract_address = config["parameters"]["contract_address"]
     print("Configuration set")
+    # auction
+    duration: int = config["auction"]["duration"]
+    start_amount: float = config["auction"]["start_amount"]
+    end_amount: float = config["auction"]["end_amount"]
+    reserve_price: float = config["auction"]["reserve_price"]
 
     # connect to node
     w3 = Web3(Web3.WebsocketProvider(provider))
