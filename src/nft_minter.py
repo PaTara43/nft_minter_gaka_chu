@@ -81,12 +81,12 @@ def start_auction():
                                                                     f"{start_amount} {end_amount} {reserve_price}")
 
     if response.exitcode == 0:
-        if "Successfully created an English auction" in response.stdout:
+        if "Successfully created an English auction" in response.stdout.decode('utf-8'):
             rospy.loginfo(response.stdout)
         else:
-            rospy.logerr(f"Failed to start English auction: {response.stdout}")
+            rospy.logerr(f"Failed to start English auction:\n {response.stdout.decode('utf-8')}")
     else:
-        rospy.logerr(f"Failed to start English auction: {response.stderr}")
+        rospy.logerr(f"Failed to start English auction:\n {response.stderr.decode('utf-8')}")
 
 
 def callback_get_name(data: String) -> None:
@@ -235,7 +235,11 @@ def callback(data: String, packagepath: str) -> bool:
     rospy.loginfo("txn_receipt: " + str(txn_receipt))
 
     # Sell item
-    start_auction()
+    try:
+        rospy.loginfo("Trying to sell the item on auction")
+        start_auction()
+    except Exception as e:
+        rospy.logerr(f"Failed to start auction:{e}")
 
 
 def listener(packagepath: str) -> None:
