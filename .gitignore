@@ -3,3 +3,4 @@ config/config_0.yaml
 data/*
 !data/GakaToken.json
 kuka-auction/node_modules
+kuka-auction/package-lock.json

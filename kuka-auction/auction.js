@@ -78,8 +78,6 @@ async function main() {
       },
       accountAddress: OWNER_ADDRESS,
       startAmount: START_AMOUNT,
-      endAmount: END_AMOUNT,
-      englishAuctionReservePrice: RESERVE_PRICE,
       expirationTime: expirationTime,
       waitForHighestBid: true,
       paymentTokenAddress: wethAddress,
