@@ -13,8 +13,6 @@ parameters:
 auction:
   duration:
   start_amount:
-  end_amount:
-  reserve_price:
 filepaths:
   video: ''
   picture: ''

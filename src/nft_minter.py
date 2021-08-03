@@ -77,8 +77,7 @@ def start_auction():
     infura_key = provider[provider.rfind("/") + 1:]
     network = provider[provider.find("//") + 2:provider.find(".")]
     response = muterun_js(f"{packagePath}/kuka-auction/auction.js", f"{infura_key} {minter_seed} {minter} {network} "
-                                                                    f"{contract_address} {duration} "
-                                                                    f"{start_amount} {end_amount} {reserve_price}")
+                                                                    f"{contract_address} {duration} {start_amount}")
 
     if response.exitcode == 0:
         if "Successfully created an English auction" in response.stdout.decode('utf-8'):

@@ -12,8 +12,6 @@ const NFT_CONTRACT_ADDRESS = process.argv[6];
 
 const DURATION = parseInt(process.argv[7], 10);
 const START_AMOUNT = parseFloat(process.argv[8]);
-const END_AMOUNT = parseFloat(process.argv[9]);
-const RESERVE_PRICE = parseFloat(process.argv[10]);
 
 //
 // console.log(NODE_API_KEY)
