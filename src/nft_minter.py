@@ -234,6 +234,9 @@ def callback(data: String, packagepath: str) -> bool:
     rospy.loginfo("txn_receipt: " + str(txn_receipt))
 
     # Sell item
+    rospy.loginfo(f"Waiting 2 minutes to let OpenSea list the token")
+    time.sleep(120)
+
     try:
         rospy.loginfo("Trying to sell the item on auction")
         start_auction()
@@ -281,8 +284,6 @@ if __name__ == "__main__":
     # auction
     duration: int = config["auction"]["duration"]
     start_amount: float = config["auction"]["start_amount"]
-    end_amount: float = config["auction"]["end_amount"]
-    reserve_price: float = config["auction"]["reserve_price"]
 
     # connect to node
     w3 = Web3(Web3.WebsocketProvider(provider))

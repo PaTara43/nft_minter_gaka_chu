@@ -50,7 +50,7 @@ async function main() {
   // Testing connection and etching total number of items
   /////////////////////////////////
 
-  console.log("Fetching total number of items")
+  console.log("Fetching total number of items: ")
   const asset = await seaport.api.getAsset({
     tokenAddress: NFT_CONTRACT_ADDRESS, // string
   })
@@ -61,7 +61,7 @@ async function main() {
   //English auction
   /////////////////
 
-  console.log("English auctioning an item in WETH...");
+  console.log("\r\nEnglish auctioning an item in WETH...");
   const expirationTime = Math.round(Date.now() / 1000 + DURATION);
   console.log(Math.round(Date.now() / 1000))
   console.log(expirationTime)
@@ -84,7 +84,7 @@ async function main() {
 
     });
     console.log(
-      `Successfully created an English auction sell order! ${englishAuctionSellOrder.asset.openseaLink}\n`
+      `\r\nSuccessfully created an English auction sell order! ${englishAuctionSellOrder.asset.openseaLink}`
     );
   } catch (err) {
     console.log(err)
