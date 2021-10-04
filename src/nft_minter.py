@@ -167,7 +167,7 @@ def callback(data: String, packagepath: str) -> bool:
     # json metadata
     rospy.loginfo("Creating metadata file")
     description = (
-            "This is a sample description for a NFT minted by robot. Log available at ipfs://"
+            "This token provides full rights for a physical copy of the drawing for the owner. Log available at ipfs://"
             + hash_rosbag
             + "."
     )
@@ -216,15 +216,6 @@ def callback(data: String, packagepath: str) -> bool:
     rospy.loginfo("Transaction: " + str(transaction))
     transaction.update({"gas": gas_estimate})
     transaction.update({"nonce": w3.eth.get_transaction_count(minter)})
-    if not testnet:
-        w3.eth.setGasPriceStrategy(medium_gas_price_strategy)
-        gas_price = w3.eth.generateGasPrice()
-        rospy.loginfo("gas_price " + str(gas_price))
-        transaction_price = gas_estimate * gas_price
-        rospy.loginfo(
-            "transaction_price " + str(Web3.fromWei(transaction_price, "ether"))
-        )
-        transaction.update({"gasPrice": gas_price})
     signed_tx = w3.eth.account.sign_transaction(transaction, minter_seed)
 
     # send_txn
@@ -242,6 +233,7 @@ def callback(data: String, packagepath: str) -> bool:
         start_auction()
     except Exception as e:
         rospy.logerr(f"Failed to start auction:{e}")
+    rospy.loginfo("Finished minting & sale")
 
 
 def listener(packagepath: str) -> None:
